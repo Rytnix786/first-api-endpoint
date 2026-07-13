@@ -1,7 +1,13 @@
-__pycache__/
-*.pyc
+# Virtual environments
 .venv/
 env/
 venv/
+
+# Python caches
+__pycache__/
+*.pyc
+
+# Agent-specific folders
+.agents/
 SKILLS_Main_Added/
 skills/
