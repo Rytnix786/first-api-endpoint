@@ -1,7 +1,9 @@
 import os
 import psycopg2
+import redis
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
+REDIS_URL = os.environ.get("REDIS_URL", "redis://redis:6379/0")
 
 def get_connection():
     """Returns a connection to the PostgreSQL database."""
@@ -42,3 +44,18 @@ def get_status():
     finally:
         if conn:
             conn.close()
+
+def ping_redis():
+    """Checks the health of the Redis connection.
+    
+    Returns:
+        "ok" if Redis is healthy, "error" otherwise.
+    """
+    try:
+        r = redis.Redis.from_url(REDIS_URL, socket_connect_timeout=2)
+        if r.ping():
+            return "ok"
+    except Exception:
+        return "error"
+    return "error"
+

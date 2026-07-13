@@ -14,10 +14,13 @@ def hello():
 @app.route('/status')
 def status():
     db_status = db.get_status()
+    redis_status = db.ping_redis()
     return jsonify({
         "status": db_status,
+        "redis_status": redis_status,
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     })
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
