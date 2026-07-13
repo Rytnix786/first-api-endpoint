@@ -11,3 +11,6 @@ __pycache__/
 .agents/
 SKILLS_Main_Added/
 skills/
+
+# Secrets
+.env
