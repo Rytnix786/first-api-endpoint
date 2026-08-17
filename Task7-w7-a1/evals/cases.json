@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "description": "DevOps / Infrastructure PostgreSQL Kubernetes",
+    "input": "We migrated our PostgreSQL database cluster to Kubernetes using Zalando operator. We configured WAL archiving to AWS S3 and set up Prometheus alert rules for replication lag.",
+    "expected_category": "devops_cloud",
+    "expected_technical_depth": "advanced"
+  },
+  {
+    "id": 2,
+    "description": "AI/ML Llama-3 Fine-tuning QLoRA",
+    "input": "Fine-tuning Llama-3 8B using QLoRA and Unsloth requires setting target_modules to q_proj and v_proj to reduce VRAM consumption down to 6GB.",
+    "expected_category": "ai_ml",
+    "expected_technical_depth": "advanced"
+  },
+  {
+    "id": 3,
+    "description": "Security OAuth2 PKCE JWT vulnerability",
+    "input": "Improper verification of JWT signatures in OAuth2 authorization server allows attacker to bypass authentication via alg: none header attack.",
+    "expected_category": "security",
+    "expected_technical_depth": "advanced"
+  },
+  {
+    "id": 4,
+    "description": "Engineering React state management custom hook",
+    "input": "We refactored our frontend React component to use useReducer and custom hooks for managing complex modal dialog UI states cleanly.",
+    "expected_category": "engineering",
+    "expected_technical_depth": "intermediate"
+  },
+  {
+    "id": 5,
+    "description": "DevOps Docker multi-stage build optimization",
+    "input": "Using multi-stage Docker builds with alpine base image reduced our production container image size from 1.2GB down to 85MB.",
+    "expected_category": "devops_cloud",
+    "expected_technical_depth": "intermediate"
+  },
+  {
+    "id": 6,
+    "description": "AI/ML RAG vector search HNSW index",
+    "input": "Retrieval-augmented generation performance improved by 40% after switching vector index from flat L2 distance to HNSW index in Qdrant.",
+    "expected_category": "ai_ml",
+    "expected_technical_depth": "intermediate"
+  },
+  {
+    "id": 7,
+    "description": "Ambiguous / Edge Case: General cooking recipe (When Unsure Rule)",
+    "input": "Preheat oven to 375F. Mix flour, sugar, butter, and baking powder in a bowl. Bake for 25 minutes until golden brown.",
+    "expected_category": "other",
+    "expected_technical_depth": "beginner"
+  },
+  {
+    "id": 8,
+    "description": "Promotional Spam / Junk text (When Unsure Rule)",
+    "input": "Buy cheap social followers fast guaranteed 100k views call now instant boost discount!",
+    "expected_category": "other",
+    "expected_technical_depth": "beginner"
+  }
+]
