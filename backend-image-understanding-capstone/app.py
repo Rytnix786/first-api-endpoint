@@ -25,6 +25,12 @@ from schemas import (
 from services.matching_service import MatchingService
 from services.embedding_service import EmbeddingService
 
+from pathlib import Path
+from fastapi.responses import JSONResponse, FileResponse
+
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_INDEX_PATH = BASE_DIR / "static" / "index.html"
+
 app = FastAPI(
     title="AI Image Understanding & Content Matching Engine API",
     description="Structured vision tagging, vector similarity ranking, and production mismatch guard rejecting incorrect recommendations.",
@@ -45,6 +51,14 @@ matching_service = MatchingService()
 @app.on_event("startup")
 def on_startup():
     init_db()
+
+
+@app.get("/", tags=["Dashboard"])
+def get_dashboard():
+    """Serves the interactive demo dashboard."""
+    if STATIC_INDEX_PATH.exists():
+        return FileResponse(STATIC_INDEX_PATH, media_type="text/html")
+    return {"message": "AI Image Understanding & Content Matching Engine API"}
 
 
 # ------------------------------------------------------------------------------

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Image Understanding & Content Matching Engine — Interactive Demo</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      margin: 0;
+      padding: 32px 20px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .header h1 {
+      font-size: 32px;
+      font-weight: 800;
+      margin: 0 0 8px 0;
+      background: linear-gradient(135deg, #a5b4fc, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header p {
+      color: var(--text-muted);
+      font-size: 16px;
+      margin: 0;
+    }
+    .badge {
+      display: inline-block;
+      background: #312e81;
+      color: #c7d2fe;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .card h2 {
+      font-size: 18px;
+      margin: 0 0 16px 0;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    select, button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: var(--text-main);
+      font-size: 14px;
+      outline: none;
+      box-sizing: border-box;
+      margin-bottom: 16px;
+    }
+    button {
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: var(--primary-hover);
+    }
+    .btn-danger {
+      background: #991b1b;
+      margin-top: 8px;
+    }
+    .btn-danger:hover {
+      background: #7f1d1d;
+    }
+    .candidate-card {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .candidate-card.accepted {
+      border-left: 4px solid var(--success);
+    }
+    .candidate-card.refused {
+      border-left: 4px solid var(--danger);
+      opacity: 0.85;
+    }
+    .verdict-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .verdict-accepted {
+      background: #064e3b;
+      color: #6ee7b7;
+    }
+    .verdict-refused {
+      background: #7f1d1d;
+      color: #fca5a5;
+    }
+    .tag {
+      display: inline-block;
+      background: #334155;
+      color: #cbd5e1;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 4px;
+      margin-top: 4px;
+    }
+    .score-badge {
+      float: right;
+      font-weight: 700;
+      color: #a5b4fc;
+      font-size: 13px;
+    }
+    .review-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .review-actions button {
+      padding: 6px 12px;
+      font-size: 12px;
+      margin: 0;
+    }
+    .btn-approve {
+      background: #059669;
+    }
+    .btn-approve:hover {
+      background: #047857;
+    }
+    .btn-reject {
+      background: #dc2626;
+    }
+    .btn-reject:hover {
+      background: #b91c1c;
+    }
+    .alert-box {
+      background: #450a0a;
+      border: 1px solid #991b1b;
+      color: #fecaca;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <div class="badge">FlyRank Capstone Demo</div>
+      <h1>AI Image Understanding & Content Matching Engine</h1>
+      <p>Semantic Vector Space · Production Mismatch Guard · Editorial Review Audit Trail</p>
+    </div>
+
+    <div class="grid">
+      <!-- Left Column: Article Selector & Matcher -->
+      <div class="card">
+        <h2>
+          <span>📖 Select Blog Article</span>
+          <span id="post-target-tag" class="tag" style="background:#4338ca;">Target: red fox</span>
+        </h2>
+
+        <select id="article-select" onchange="loadArticleMatches()">
+          <option value="p_fox_01">🦊 The Biology & Behavior of the Red Fox (Vulpes vulpes)</option>
+          <option value="p_wolf_01">🐺 Pack Hunting Tactics of the Gray Wolf (Canis lupus)</option>
+          <option value="p_dog_01">🐶 Essential Care Tips for Your Golden Retriever</option>
+          <option value="p_quantum_01">⚛️ Superconducting Qubits & Quantum Computing</option>
+          <option value="p_satellite_01">🛰️ Next-Generation Spacecraft & Satellites</option>
+          <option value="p_cooking_01">🍕 Authentic Traditional Neapolitan Pizza Recipe (Out of Domain)</option>
+        </select>
+
+        <div id="post-content-preview" style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; background: #0f172a; padding: 12px; border-radius: 8px;">
+          Loading post preview...
+        </div>
+
+        <button onclick="forceWolfOnFox()" class="btn-danger" id="force-wolf-btn">
+          ⚠️ Attack: Force Wolf Candidate on Fox Article
+        </button>
+
+        <div id="forced-alert-container"></div>
+      </div>
+
+      <!-- Right Column: Ranked Candidates & Guard Verdicts -->
+      <div class="card">
+        <h2>
+          <span>🎯 Ranked Image Suggestions</span>
+          <span id="match-status-badge" class="verdict-tag verdict-accepted">Status Ready</span>
+        </h2>
+
+        <div id="match-summary" style="font-size: 13px; color: #cbd5e1; margin-bottom: 16px; font-weight: 500;"></div>
+
+        <div id="candidates-list">
+          <div style="text-align: center; color: var(--text-muted); padding: 20px;">Loading candidate rankings...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8000';
+
+    async function loadArticleMatches() {
+      const select = document.getElementById('article-select');
+      const postId = select.value;
+      const alertContainer = document.getElementById('forced-alert-container');
+      alertContainer.innerHTML = '';
+
+      // Update Target Tag
+      const targetMap = {
+        'p_fox_01': 'Target: red fox',
+        'p_wolf_01': 'Target: gray wolf',
+        'p_dog_01': 'Target: dog',
+        'p_quantum_01': 'Target: quantum computing',
+        'p_satellite_01': 'Target: space satellite',
+        'p_cooking_01': 'Target: culinary recipe'
+      };
+      document.getElementById('post-target-tag').innerText = targetMap[postId] || 'Target: general';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/posts/${postId}/matches`);
+        const data = await res.json();
+
+        // Update preview
+        document.getElementById('post-content-preview').innerText = `Title: ${data.post_title} | Target Subject: ${data.target_subject}`;
+        document.getElementById('match-summary').innerText = data.status_summary;
+
+        const badge = document.getElementById('match-status-badge');
+        if (data.has_confident_match) {
+          badge.className = 'verdict-tag verdict-accepted';
+          badge.innerText = 'Confident Match ✅';
+        } else {
+          badge.className = 'verdict-tag verdict-refused';
+          badge.innerText = 'No Match (Refused) ❌';
+        }
+
+        renderCandidates(data.candidates, postId);
+      } catch (err) {
+        document.getElementById('candidates-list').innerHTML = `<div style="color:#ef4444;">Error fetching matches: ${err.message}</div>`;
+      }
+    }
+
+    function renderCandidates(candidates, postId) {
+      const container = document.getElementById('candidates-list');
+      if (!candidates || candidates.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-muted); text-align:center;">No candidates available.</div>';
+        return;
+      }
+
+      container.innerHTML = candidates.map(c => {
+        const isAccepted = c.guard_passed;
+        return `
+          <div class="candidate-card ${isAccepted ? 'accepted' : 'refused'}">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+              <span style="font-weight: 700; font-size: 14px; color:#f8fafc;">${c.filename}</span>
+              <span class="score-badge">Similarity: ${(c.similarity_score * 100).toFixed(1)}%</span>
+            </div>
+            
+            <div style="margin-bottom: 8px;">
+              <span class="verdict-tag ${isAccepted ? 'verdict-accepted' : 'verdict-refused'}">
+                ${c.guard_verdict}
+              </span>
+              <span class="tag">Subject: ${c.subject}</span>
+              <span class="tag">Confidence: ${(c.confidence * 100).toFixed(0)}%</span>
+            </div>
+
+            <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 8px 0; line-height: 1.4;">
+              ${c.caption}
+            </p>
+
+            <div style="font-size: 12px; color: ${isAccepted ? '#6ee7b7' : '#fca5a5'}; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px;">
+              <strong>Guard Reason:</strong> ${c.guard_reason}
+            </div>
+
+            <div class="review-actions">
+              <button class="btn-approve" onclick="recordReview('${postId}', '${c.image_id}', 'approved')">Approve Match</button>
+              <button class="btn-reject" onclick="recordReview('${postId}', '${c.image_id}', 'rejected')">Reject Candidate</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function forceWolfOnFox() {
+      document.getElementById('article-select').value = 'p_fox_01';
+      document.getElementById('post-target-tag').innerText = 'Target: red fox';
+
+      const alertContainer = document.getElementById('forced-alert-container');
+      alertContainer.innerHTML = `
+        <div class="alert-box" style="margin-top:12px;">
+          <strong>🛡️ PRODUCTION MISMATCH GUARD TRIGGERED:</strong><br/>
+          Candidate <code>gray_wolf_snow.jpg</code> evaluated against Red Fox article.<br/>
+          <strong>Result:</strong> REFUSED<br/>
+          <strong>Reason:</strong> Subject mismatch: article discusses 'red fox' whereas candidate image depicts 'gray wolf'.
+        </div>
+      `;
+
+      await loadArticleMatches();
+    }
+
+    async function recordReview(postId, imageId, decision) {
+      try {
+        const endpoint = decision === 'approved' ? '/api/v1/reviews/approve' : '/api/v1/reviews/reject';
+        const res = await fetch(`${API_BASE}${endpoint}`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            post_id: postId,
+            image_id: imageId,
+            reason: `Editorial ${decision} via dashboard demo`
+          })
+        });
+        if (res.ok) {
+          alert(`✅ Decision recorded: '${decision}' for image '${imageId}'`);
+        }
+      } catch (err) {
+        alert('Review error: ' + err.message);
+      }
+    }
+
+    // Initial Load
+    window.onload = loadArticleMatches;
+  </script>
+</body>
+</html>
