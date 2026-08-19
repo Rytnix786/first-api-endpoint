@@ -1,0 +1,64 @@
+[
+  {
+    "id": "eval_01",
+    "post_id": "p_fox_01",
+    "post_title": "The Biology and Nocturnal Behavior of the Red Fox",
+    "expected_top_image_ids": ["img_fox_01", "img_fox_02"],
+    "expected_verdict": "ACCEPTED",
+    "description": "Red fox article should match a red fox image (img_fox_01 or img_fox_02) as top candidate"
+  },
+  {
+    "id": "eval_02",
+    "post_id": "p_fox_01",
+    "forced_candidate_id": "img_wolf_01",
+    "expected_verdict": "REFUSED",
+    "description": "Wolf image on red fox post must be rejected by Mismatch Guard"
+  },
+  {
+    "id": "eval_03",
+    "post_id": "p_fox_01",
+    "forced_candidate_id": "img_dog_01",
+    "expected_verdict": "REFUSED",
+    "description": "Dog image on red fox post must be rejected by Mismatch Guard"
+  },
+  {
+    "id": "eval_04",
+    "post_id": "p_wolf_01",
+    "post_title": "Pack Hunting Tactics of the Gray Wolf in Winter",
+    "expected_top_image_id": "img_wolf_01",
+    "expected_verdict": "ACCEPTED",
+    "description": "Wolf article should match gray wolf image"
+  },
+  {
+    "id": "eval_05",
+    "post_id": "p_dog_01",
+    "post_title": "Essential Care Tips for Your Golden Retriever",
+    "expected_top_image_id": "img_dog_01",
+    "expected_verdict": "ACCEPTED",
+    "description": "Dog care article should match golden retriever image"
+  },
+  {
+    "id": "eval_06",
+    "post_id": "p_quantum_01",
+    "post_title": "Advancements in Superconducting Qubits and Quantum Computing",
+    "expected_top_image_id": "img_quantum_01",
+    "expected_verdict": "ACCEPTED",
+    "description": "Quantum computing article should match quantum chip image"
+  },
+  {
+    "id": "eval_07",
+    "post_id": "p_satellite_01",
+    "post_title": "Next-Generation Spacecraft and Satellite Communications",
+    "expected_top_image_id": "img_satellite_01",
+    "expected_verdict": "ACCEPTED",
+    "description": "Satellite article should match space satellite image"
+  },
+  {
+    "id": "eval_08",
+    "post_id": "p_cooking_01",
+    "post_title": "Authentic Traditional Neapolitan Pizza Recipe",
+    "expected_top_image_id": null,
+    "expected_has_confident_match": false,
+    "description": "Cooking article with no matching image in corpus must return no confident match"
+  }
+]
