@@ -3,185 +3,394 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Image Understanding & Content Matching Engine — Interactive Demo</title>
+  <title>FlyRank — AI Image Relevance & Content Matching Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --bg: #0f172a;
-      --card-bg: #1e293b;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-glow: rgba(99, 102, 241, 0.25);
+      --bg: #090d16;
+      --card-bg: rgba(22, 30, 46, 0.75);
+      --card-border: rgba(51, 65, 85, 0.6);
+      --card-hover: rgba(30, 41, 59, 0.85);
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
       --border: #334155;
       --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.15);
       --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.15);
       --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.15);
+    }
+    * {
+      box-sizing: border-box;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, var(--bg) 75%);
       color: var(--text-main);
       margin: 0;
       padding: 32px 20px;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
     .container {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
     }
+    /* Header */
     .header {
       text-align: center;
       margin-bottom: 32px;
     }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      color: #c7d2fe;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 9999px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: #818cf8;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #818cf8;
+    }
     .header h1 {
-      font-size: 32px;
+      font-size: 34px;
       font-weight: 800;
-      margin: 0 0 8px 0;
-      background: linear-gradient(135deg, #a5b4fc, #818cf8, #c084fc);
+      margin: 0 0 10px 0;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #818cf8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
     }
     .header p {
       color: var(--text-muted);
-      font-size: 16px;
+      font-size: 15px;
       margin: 0;
     }
-    .badge {
-      display: inline-block;
-      background: #312e81;
-      color: #c7d2fe;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 9999px;
-      margin-bottom: 12px;
-      text-transform: uppercase;
+
+    /* Tabs */
+    .tabs-nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 28px;
     }
+    .tab-btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.6);
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(8px);
+    }
+    .tab-btn:hover {
+      color: #ffffff;
+      border-color: #64748b;
+      transform: translateY(-1px);
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 4px 14px var(--primary-glow);
+    }
+
+    /* Layout Grid */
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 420px 1fr;
       gap: 24px;
     }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    /* Cards */
     .card {
       background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
       padding: 24px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(12px);
     }
-    .card h2 {
-      font-size: 18px;
-      margin: 0 0 16px 0;
-      color: #e2e8f0;
+    .card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-bottom: 18px;
     }
-    select, button {
+    .card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Form Controls */
+    select {
       width: 100%;
-      padding: 12px;
-      border-radius: 8px;
+      padding: 12px 14px;
+      border-radius: 10px;
       border: 1px solid var(--border);
       background: #0f172a;
       color: var(--text-main);
       font-size: 14px;
+      font-weight: 500;
       outline: none;
-      box-sizing: border-box;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
+      cursor: pointer;
     }
-    button {
-      background: var(--primary);
-      color: #ffffff;
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    /* Action Buttons */
+    .btn-action {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      border: none;
-      transition: background 0.2s;
-    }
-    button:hover {
-      background: var(--primary-hover);
-    }
-    .btn-danger {
-      background: #991b1b;
-      margin-top: 8px;
-    }
-    .btn-danger:hover {
-      background: #7f1d1d;
-    }
-    .candidate-card {
-      background: #0f172a;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-    .candidate-card.accepted {
-      border-left: 4px solid var(--success);
-    }
-    .candidate-card.refused {
-      border-left: 4px solid var(--danger);
-      opacity: 0.85;
-    }
-    .verdict-tag {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 4px;
-      text-transform: uppercase;
-    }
-    .verdict-accepted {
-      background: #064e3b;
-      color: #6ee7b7;
-    }
-    .verdict-refused {
-      background: #7f1d1d;
-      color: #fca5a5;
-    }
-    .tag {
-      display: inline-block;
-      background: #334155;
-      color: #cbd5e1;
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      margin-right: 4px;
-      margin-top: 4px;
-    }
-    .score-badge {
-      float: right;
-      font-weight: 700;
-      color: #a5b4fc;
-      font-size: 13px;
-    }
-    .review-actions {
       display: flex;
+      align-items: center;
+      justify-content: center;
       gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-action:active {
+      transform: scale(0.98);
+    }
+    .btn-attack {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
       margin-top: 10px;
     }
-    .review-actions button {
-      padding: 6px 12px;
+    .btn-attack:hover {
+      background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+    }
+
+    /* Candidate Card */
+    .candidate-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+      position: relative;
+    }
+    .candidate-card:hover {
+      border-color: #64748b;
+      background: rgba(30, 41, 59, 0.8);
+      transform: translateY(-2px);
+    }
+    .candidate-card.accepted {
+      border-left: 5px solid var(--success);
+    }
+    .candidate-card.refused {
+      border-left: 5px solid var(--danger);
+    }
+
+    .verdict-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .verdict-accepted {
+      background: var(--success-bg);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .verdict-refused {
+      background: var(--danger-bg);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .tag {
+      display: inline-block;
+      background: rgba(51, 65, 85, 0.6);
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-right: 4px;
+      margin-top: 4px;
+      border: 1px solid rgba(100, 116, 139, 0.2);
+    }
+
+    .score-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: #818cf8;
+      font-size: 13px;
+      background: rgba(99, 102, 241, 0.1);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    /* Mini Action Buttons inside Candidate Card */
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .btn-review {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 8px;
       font-size: 12px;
-      margin: 0;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
     .btn-approve {
-      background: #059669;
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
     }
     .btn-approve:hover {
-      background: #047857;
+      background: var(--success);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
     }
     .btn-reject {
-      background: #dc2626;
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
     }
     .btn-reject:hover {
-      background: #b91c1c;
+      background: var(--danger);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
     }
-    .alert-box {
-      background: #450a0a;
-      border: 1px solid #991b1b;
-      color: #fecaca;
-      padding: 12px;
-      border-radius: 8px;
+
+    /* Toast Notification */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: #1e293b;
+      color: #ffffff;
+      border: 1px solid #475569;
+      padding: 12px 18px;
+      border-radius: 10px;
       font-size: 13px;
-      margin-bottom: 16px;
+      font-weight: 500;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.25s ease-out;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Tables for Logs and Telemetry */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    th {
+      padding: 12px;
+      background: rgba(15, 23, 42, 0.8);
+      color: #94a3b8;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+    td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+      color: #cbd5e1;
+    }
+    tr:hover td {
+      background: rgba(30, 41, 59, 0.5);
+    }
+
+    /* Gallery Cards */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .gallery-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      position: relative;
+    }
+    .gallery-card.flagged {
+      border: 1px solid rgba(245, 158, 11, 0.6);
+      background: rgba(245, 158, 11, 0.05);
     }
   </style>
 </head>
@@ -189,57 +398,162 @@
 
   <div class="container">
     <div class="header">
-      <div class="badge">FlyRank Capstone Demo</div>
-      <h1>AI Image Understanding & Content Matching Engine</h1>
-      <p>Semantic Vector Space · Production Mismatch Guard · Editorial Review Audit Trail</p>
+      <div class="badge">FlyRank Production Capstone</div>
+      <h1>AI Image Relevance & Content Matching Engine</h1>
+      <p>Semantic Embedding Vectors · Production Mismatch Guard · Real-Time Editorial Audit Trail</p>
     </div>
 
-    <div class="grid">
-      <!-- Left Column: Article Selector & Matcher -->
-      <div class="card">
-        <h2>
-          <span>📖 Select Blog Article</span>
-          <span id="post-target-tag" class="tag" style="background:#4338ca;">Target: red fox</span>
-        </h2>
+    <!-- Navigation Tabs -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab('matcher', this)">🎯 Article Matcher</button>
+      <button class="tab-btn" onclick="switchTab('gallery', this)">🖼️ Ingested Images (9)</button>
+      <button class="tab-btn" onclick="switchTab('reviews', this)">📜 Review Trail</button>
+      <button class="tab-btn" onclick="switchTab('costs', this)">📊 AI Telemetry & Costs</button>
+    </div>
 
-        <select id="article-select" onchange="loadArticleMatches()">
-          <option value="p_fox_01">🦊 The Biology & Behavior of the Red Fox (Vulpes vulpes)</option>
-          <option value="p_wolf_01">🐺 Pack Hunting Tactics of the Gray Wolf (Canis lupus)</option>
-          <option value="p_dog_01">🐶 Essential Care Tips for Your Golden Retriever</option>
-          <option value="p_quantum_01">⚛️ Superconducting Qubits & Quantum Computing</option>
-          <option value="p_satellite_01">🛰️ Next-Generation Spacecraft & Satellites</option>
-          <option value="p_cooking_01">🍕 Authentic Traditional Neapolitan Pizza Recipe (Out of Domain)</option>
-        </select>
+    <!-- TAB 1: Article Matcher & Guard -->
+    <div id="tab-matcher" class="tab-content active">
+      <div class="grid">
+        <!-- Left Panel: Article Selection -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📖 Article Query</div>
+            <span id="post-target-tag" class="tag" style="background:#4338ca; color:#ffffff; font-weight:700;">Target: red fox</span>
+          </div>
 
-        <div id="post-content-preview" style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; background: #0f172a; padding: 12px; border-radius: 8px;">
-          Loading post preview...
+          <label style="display:block; font-size:12px; color:var(--text-muted); font-weight:600; margin-bottom:6px; text-transform:uppercase;">Select Blog Article</label>
+          <select id="article-select" onchange="loadArticleMatches()">
+            <option value="p_fox_01">🦊 The Biology & Behavior of the Red Fox (Vulpes vulpes)</option>
+            <option value="p_wolf_01">🐺 Pack Hunting Tactics of the Gray Wolf (Canis lupus)</option>
+            <option value="p_dog_01">🐶 Essential Care Tips for Your Golden Retriever</option>
+            <option value="p_quantum_01">⚛️ Superconducting Qubits & Quantum Computing</option>
+            <option value="p_satellite_01">🛰️ Next-Generation Spacecraft & Satellites</option>
+            <option value="p_cooking_01">🍕 Traditional Neapolitan Pizza Recipe (Out of Domain)</option>
+          </select>
+
+          <div id="post-content-preview" style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; background: rgba(15, 23, 42, 0.8); padding: 14px; border-radius: 10px; border: 1px solid var(--border);">
+            Loading preview...
+          </div>
+
+          <button onclick="forceWolfOnFox()" class="btn-action btn-attack" id="force-wolf-btn">
+            <span>⚠️</span> Force Wolf Candidate on Fox Post
+          </button>
+
+          <div id="forced-alert-container"></div>
         </div>
 
-        <button onclick="forceWolfOnFox()" class="btn-danger" id="force-wolf-btn">
-          ⚠️ Attack: Force Wolf Candidate on Fox Article
-        </button>
+        <!-- Right Panel: Match Candidates -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🎯 Ranked Recommendations</div>
+            <span id="match-status-badge" class="verdict-tag verdict-accepted">Evaluating...</span>
+          </div>
 
-        <div id="forced-alert-container"></div>
+          <div id="match-summary" style="font-size: 13px; color: #cbd5e1; margin-bottom: 16px; font-weight: 500; line-height: 1.4;"></div>
+
+          <div id="candidates-list">
+            <div style="text-align:center; color:var(--text-muted); padding:30px;">Loading candidate rankings...</div>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <!-- Right Column: Ranked Candidates & Guard Verdicts -->
+    <!-- TAB 2: Image Corpus Gallery -->
+    <div id="tab-gallery" class="tab-content">
       <div class="card">
-        <h2>
-          <span>🎯 Ranked Image Suggestions</span>
-          <span id="match-status-badge" class="verdict-tag verdict-accepted">Status Ready</span>
-        </h2>
+        <div class="card-header">
+          <div class="card-title">🖼️ Ingested Image Corpus & Vision Metadata</div>
+          <button onclick="loadGallery()" class="tab-btn" style="padding:4px 10px; font-size:12px;">🔄 Refresh</button>
+        </div>
+        <div id="gallery-container" class="gallery-grid">Loading image corpus...</div>
+      </div>
+    </div>
 
-        <div id="match-summary" style="font-size: 13px; color: #cbd5e1; margin-bottom: 16px; font-weight: 500;"></div>
+    <!-- TAB 3: Review Audit Trail -->
+    <div id="tab-reviews" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📜 Human-in-the-Loop Review Trail</div>
+          <button onclick="loadReviews()" class="tab-btn" style="padding:4px 10px; font-size:12px;">🔄 Refresh</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Post ID</th>
+                <th>Image ID</th>
+                <th>Decision</th>
+                <th>Similarity</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody id="reviews-tbody">
+              <tr><td colspan="6" style="text-align:center;">Loading audit trail...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-        <div id="candidates-list">
-          <div style="text-align: center; color: var(--text-muted); padding: 20px;">Loading candidate rankings...</div>
+    <!-- TAB 4: AI Cost Telemetry -->
+    <div id="tab-costs" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📊 Per-Call AI Cost Telemetry ($0 Free Tier Tracking)</div>
+          <button onclick="loadCosts()" class="tab-btn" style="padding:4px 10px; font-size:12px;">🔄 Refresh</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Operation</th>
+                <th>Model</th>
+                <th>Tokens (In / Out)</th>
+                <th>Duration</th>
+                <th>Cost (µ-cents)</th>
+              </tr>
+            </thead>
+            <tbody id="costs-tbody">
+              <tr><td colspan="6" style="text-align:center;">Loading telemetry logs...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
   <script>
     const API_BASE = 'http://localhost:8000';
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      const icon = type === 'success' ? '✅' : (type === 'danger' ? '❌' : 'ℹ️');
+      toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        setTimeout(() => toast.remove(), 250);
+      }, 3500);
+    }
+
+    function switchTab(tabName, el) {
+      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
+      document.getElementById('tab-' + tabName).classList.add('active');
+      if (el) el.classList.add('active');
+
+      if (tabName === 'gallery') loadGallery();
+      if (tabName === 'reviews') loadReviews();
+      if (tabName === 'costs') loadCosts();
+    }
 
     async function loadArticleMatches() {
       const select = document.getElementById('article-select');
@@ -247,7 +561,6 @@
       const alertContainer = document.getElementById('forced-alert-container');
       alertContainer.innerHTML = '';
 
-      // Update Target Tag
       const targetMap = {
         'p_fox_01': 'Target: red fox',
         'p_wolf_01': 'Target: gray wolf',
@@ -262,29 +575,31 @@
         const res = await fetch(`${API_BASE}/api/v1/posts/${postId}/matches`);
         const data = await res.json();
 
-        // Update preview
-        document.getElementById('post-content-preview').innerText = `Title: ${data.post_title} | Target Subject: ${data.target_subject}`;
+        document.getElementById('post-content-preview').innerHTML = `
+          <strong>Title:</strong> ${data.post_title}<br/>
+          <span style="color:#a5b4fc; font-weight:600;">Ground-Truth Target: ${data.target_subject}</span>
+        `;
         document.getElementById('match-summary').innerText = data.status_summary;
 
         const badge = document.getElementById('match-status-badge');
         if (data.has_confident_match) {
           badge.className = 'verdict-tag verdict-accepted';
-          badge.innerText = 'Confident Match ✅';
+          badge.innerHTML = '<span>●</span> Confident Match';
         } else {
           badge.className = 'verdict-tag verdict-refused';
-          badge.innerText = 'No Match (Refused) ❌';
+          badge.innerHTML = '<span>●</span> No Match (Refused)';
         }
 
         renderCandidates(data.candidates, postId);
       } catch (err) {
-        document.getElementById('candidates-list').innerHTML = `<div style="color:#ef4444;">Error fetching matches: ${err.message}</div>`;
+        document.getElementById('candidates-list').innerHTML = `<div style="color:#ef4444;">Error: ${err.message}</div>`;
       }
     }
 
     function renderCandidates(candidates, postId) {
       const container = document.getElementById('candidates-list');
       if (!candidates || candidates.length === 0) {
-        container.innerHTML = '<div style="color:var(--text-muted); text-align:center;">No candidates available.</div>';
+        container.innerHTML = '<div style="color:var(--text-muted); text-align:center; padding:30px;">No candidates available.</div>';
         return;
       }
 
@@ -294,28 +609,32 @@
           <div class="candidate-card ${isAccepted ? 'accepted' : 'refused'}">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
               <span style="font-weight: 700; font-size: 14px; color:#f8fafc;">${c.filename}</span>
-              <span class="score-badge">Similarity: ${(c.similarity_score * 100).toFixed(1)}%</span>
+              <span class="score-badge">Cosine Sim: ${(c.similarity_score * 100).toFixed(1)}%</span>
             </div>
             
             <div style="margin-bottom: 8px;">
               <span class="verdict-tag ${isAccepted ? 'verdict-accepted' : 'verdict-refused'}">
-                ${c.guard_verdict}
+                ${isAccepted ? '✅ ACCEPTED' : '❌ REFUSED'}
               </span>
               <span class="tag">Subject: ${c.subject}</span>
               <span class="tag">Confidence: ${(c.confidence * 100).toFixed(0)}%</span>
             </div>
 
-            <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 8px 0; line-height: 1.4;">
+            <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 10px 0; line-height: 1.4;">
               ${c.caption}
             </p>
 
-            <div style="font-size: 12px; color: ${isAccepted ? '#6ee7b7' : '#fca5a5'}; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px;">
-              <strong>Guard Reason:</strong> ${c.guard_reason}
+            <div style="font-size: 12px; color: ${isAccepted ? '#6ee7b7' : '#fca5a5'}; background: ${isAccepted ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)'}; padding: 8px 12px; border-radius: 8px; border: 1px solid ${isAccepted ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.25)'};">
+              <strong>Guard Verdict:</strong> ${c.guard_reason}
             </div>
 
-            <div class="review-actions">
-              <button class="btn-approve" onclick="recordReview('${postId}', '${c.image_id}', 'approved')">Approve Match</button>
-              <button class="btn-reject" onclick="recordReview('${postId}', '${c.image_id}', 'rejected')">Reject Candidate</button>
+            <div class="card-actions">
+              <button class="btn-review btn-approve" onclick="recordReview('${postId}', '${c.image_id}', 'approved', this)">
+                <span>✓</span> Approve Match
+              </button>
+              <button class="btn-review btn-reject" onclick="recordReview('${postId}', '${c.image_id}', 'rejected', this)">
+                <span>✕</span> Reject Candidate
+              </button>
             </div>
           </div>
         `;
@@ -328,18 +647,25 @@
 
       const alertContainer = document.getElementById('forced-alert-container');
       alertContainer.innerHTML = `
-        <div class="alert-box" style="margin-top:12px;">
-          <strong>🛡️ PRODUCTION MISMATCH GUARD TRIGGERED:</strong><br/>
+        <div style="background:rgba(239, 68, 68, 0.15); border:1px solid rgba(239, 68, 68, 0.4); color:#fca5a5; padding:14px; border-radius:10px; font-size:13px; margin-top:14px; line-height:1.5;">
+          <div style="font-weight:700; color:#ef4444; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+            <span>🛡️</span> PRODUCTION MISMATCH GUARD REFUSAL
+          </div>
           Candidate <code>gray_wolf_snow.jpg</code> evaluated against Red Fox article.<br/>
-          <strong>Result:</strong> REFUSED<br/>
+          <strong>Verdict:</strong> <span class="verdict-tag verdict-refused">REFUSED</span><br/>
           <strong>Reason:</strong> Subject mismatch: article discusses 'red fox' whereas candidate image depicts 'gray wolf'.
         </div>
       `;
 
       await loadArticleMatches();
+      showToast('Mismatch Guard successfully refused the wolf recommendation!', 'danger');
     }
 
-    async function recordReview(postId, imageId, decision) {
+    async function recordReview(postId, imageId, decision, btnEl) {
+      const originalText = btnEl.innerHTML;
+      btnEl.disabled = true;
+      btnEl.innerHTML = 'Recording...';
+
       try {
         const endpoint = decision === 'approved' ? '/api/v1/reviews/approve' : '/api/v1/reviews/reject';
         const res = await fetch(`${API_BASE}${endpoint}`, {
@@ -348,18 +674,104 @@
           body: JSON.stringify({
             post_id: postId,
             image_id: imageId,
-            reason: `Editorial ${decision} via dashboard demo`
+            reason: `Editorial ${decision} via live dashboard`
           })
         });
+
         if (res.ok) {
-          alert(`✅ Decision recorded: '${decision}' for image '${imageId}'`);
+          btnEl.innerHTML = decision === 'approved' ? '✓ Approved' : '✕ Rejected';
+          showToast(`Recorded editorial ${decision.toUpperCase()} for ${imageId}`);
+        } else {
+          throw new Error(`HTTP ${res.status}`);
         }
       } catch (err) {
-        alert('Review error: ' + err.message);
+        btnEl.disabled = false;
+        btnEl.innerHTML = originalText;
+        showToast('Review error: ' + err.message, 'danger');
       }
     }
 
-    // Initial Load
+    async function loadGallery() {
+      const container = document.getElementById('gallery-container');
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/images`);
+        const images = await res.json();
+
+        container.innerHTML = images.map(img => `
+          <div class="gallery-card ${img.status === 'flagged_low_confidence' ? 'flagged' : ''}">
+            <div style="font-weight:700; font-size:14px; margin-bottom:6px; color:#f8fafc;">${img.filename}</div>
+            <div style="margin-bottom:8px;">
+              <span class="tag" style="background:#4338ca; color:#ffffff;">${img.category}</span>
+              <span class="tag">Subject: ${img.subject}</span>
+              <span class="tag" style="${img.confidence < 0.70 ? 'background:#b45309; color:#fef3c7;' : ''}">
+                Confidence: ${(img.confidence * 100).toFixed(0)}%
+              </span>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); line-height:1.4; margin:0 0 8px 0;">${img.caption}</p>
+            ${img.status === 'flagged_low_confidence' ? '<div style="font-size:11px; color:#f59e0b; font-weight:700;">⚠️ Flagged for Human Review</div>' : ''}
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<div style="color:#ef4444;">Error loading gallery: ${err.message}</div>`;
+      }
+    }
+
+    async function loadReviews() {
+      const tbody = document.getElementById('reviews-tbody');
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/reviews`);
+        const reviews = await res.json();
+
+        if (!reviews || reviews.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No reviews recorded yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = reviews.map(r => `
+          <tr>
+            <td style="font-family:'JetBrains Mono'; font-size:11px;">${r.created_at.replace('T', ' ').slice(0, 19)}</td>
+            <td><strong>${r.post_id}</strong></td>
+            <td><code>${r.image_id}</code></td>
+            <td>
+              <span class="verdict-tag ${r.decision === 'approved' ? 'verdict-accepted' : 'verdict-refused'}">
+                ${r.decision}
+              </span>
+            </td>
+            <td style="font-family:'JetBrains Mono';">${(r.similarity_score * 100).toFixed(1)}%</td>
+            <td style="font-size:12px; color:#94a3b8;">${r.reason || '-'}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="color:#ef4444;">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function loadCosts() {
+      const tbody = document.getElementById('costs-tbody');
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/costs`);
+        const costs = await res.json();
+
+        if (!costs || costs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No telemetry logged yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = costs.map(c => `
+          <tr>
+            <td style="font-family:'JetBrains Mono'; font-size:11px;">${c.created_at.replace('T', ' ').slice(0, 19)}</td>
+            <td><strong>${c.operation}</strong></td>
+            <td style="font-size:11px; color:#94a3b8;">${c.model_id}</td>
+            <td>${c.input_tokens} / ${c.output_tokens}</td>
+            <td>${c.duration_ms} ms</td>
+            <td><strong style="color:#a5b4fc;">${c.cost_micro_cents} µc</strong></td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="color:#ef4444;">Error: ${err.message}</td></tr>`;
+      }
+    }
+
     window.onload = loadArticleMatches;
   </script>
 </body>
