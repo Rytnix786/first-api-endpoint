@@ -1,0 +1,9 @@
+# .gitignore — Secrets and Cache Isolation
+.env
+.env.local
+*.db
+*.sqlite
+__pycache__/
+*.pyc
+.pytest_cache/
+logs/

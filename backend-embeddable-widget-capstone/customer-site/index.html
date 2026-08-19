@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acme Corp — Independent Customer Website (Second Origin)</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f8fafc;
+      margin: 0;
+      padding: 40px 20px;
+      color: #334155;
+    }
+    .hero {
+      max-width: 800px;
+      margin: 0 auto 40px auto;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 18px;
+      color: #64748b;
+      line-height: 1.6;
+    }
+    .badge {
+      display: inline-block;
+      background: #e0e7ff;
+      color: #4338ca;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="badge">Independent Customer Site (Origin: http://localhost:5500)</div>
+    <h1>Welcome to Acme Corp SaaS</h1>
+    <p>This is a third-party website demonstrating cross-origin widget injection and lead-capture without any backend dependencies on Acme Corp's servers.</p>
+  </div>
+
+  <!-- FLYRANK EMBEDDABLE WIDGET SNIPPET -->
+  <script src="http://localhost:8000/widget.js?id=w_demo_123"></script>
+
+</body>
+</html>

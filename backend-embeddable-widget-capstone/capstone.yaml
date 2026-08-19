@@ -1,0 +1,28 @@
+# capstone.yaml — Evaluator Manifest for Embeddable Widget & Lead-Capture Platform
+name: "flyrank-capstone-widget-platform"
+track: "Backend AI Engineering"
+author: "Mehedi Hasan (@Rytnix786)"
+portfolio_url: "https://mehedi-hasan-llm.vercel.app/"
+version: "1.0.0"
+
+run: "python app.py"
+seed: "python seed.py"
+test: "python -m pytest test_widget_platform.py -v"
+base_url: "http://localhost:8000"
+
+endpoints:
+  - path: "/widget.js"
+    method: "GET"
+    description: "Serves the embeddable JavaScript widget bundle with long-lived caching headers."
+  - path: "/api/v1/widgets/{widget_id}/config"
+    method: "GET"
+    description: "Public CORS-enabled endpoint delivering widget configuration."
+  - path: "/api/v1/submissions"
+    method: "POST"
+    description: "Public hardened cross-origin submission endpoint with honeypot spam defense, rate limiting, and 2-tier geo fallback."
+  - path: "/api/v1/analytics/stats"
+    method: "GET"
+    description: "Authenticated owner dashboard analytics and conversion metrics."
+  - path: "/api/v1/analytics/geo"
+    method: "GET"
+    description: "Authenticated geographic distribution summary."
